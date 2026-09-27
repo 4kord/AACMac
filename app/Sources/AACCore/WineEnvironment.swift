@@ -15,6 +15,8 @@ public enum WineEnvironment {
             "WINEDEBUG": "-all",
             "WEBVIEW2_BROWSER_EXECUTABLE_FOLDER": "C:\\WebView2",
             "WEBVIEW2_ADDITIONAL_BROWSER_ARGUMENTS": webView2Arguments,
+            // steady 60 on a 120 Hz panel; MTLd3D's simulated HDR posterizes this game's colors
+            "MTLD3D_CONFIG": "present.maxFps=60;color.hdr.enable=false;color.space=accurate",
         ]
         if options.x87 { env["ROSETTA_X87_PATH"] = paths.rosettax87.path }
         if options.metalHUD { env["MTL_HUD_ENABLED"] = "1" }

@@ -7,9 +7,10 @@ final class GameSettingsTests: XCTestCase {
     func testDefaults() {
         let d = Dictionary(uniqueKeysWithValues: GameSettings.defaults(width: 1512, height: 945).map { ($0.key, $0.value) })
         XCTAssertEqual(d["r_driver"], "\"DX9\"")
-        XCTAssertEqual(d["r_Fullscreen"], "0")
-        XCTAssertEqual(d["r_Width"], "1512")
-        XCTAssertEqual(d["r_Height"], "945")
+        XCTAssertEqual(d["r_fullscreen"], "0")
+        XCTAssertEqual(d["r_width"], "1512")
+        XCTAssertEqual(d["r_height"], "945")
+        XCTAssertEqual(d["option_use_shadow"], "0")
         XCTAssertEqual(d["r_multithreaded"], "1")
         XCTAssertEqual(d["sys_spec_full"], "2")
     }
@@ -39,5 +40,19 @@ final class GameSettingsTests: XCTestCase {
     func testEmptyFile() {
         let out = GameSettings.merge("", [("a", "1")], overwrite: false)
         XCTAssertEqual(out, "a = 1\n")
+    }
+
+    func testOverwriteReplacesEveryCopyOfAKey() {
+        let text = header + "r_fullscreen = 0\nlocale = en_us\nr_Fullscreen = 0\n"
+        let out = GameSettings.merge(text, [("r_fullscreen", "1")], overwrite: true)
+        XCTAssertEqual(out.lowercased().components(separatedBy: "r_fullscreen").count - 1, 1)
+        XCTAssertEqual(GameSettings.value(of: "r_fullscreen", in: out), "1")
+        XCTAssertEqual(GameSettings.value(of: "locale", in: out), "en_us")
+    }
+
+    func testRemovingDuplicatesKeepsTheGamesOwnFirstLine() {
+        let text = header + "r_fullscreen = 1\nr_width = 3024\nr_vsync = 1\nr_Fullscreen = 0\nr_Width = 1512\n"
+        let out = GameSettings.removingDuplicates(text)
+        XCTAssertEqual(out, header + "r_fullscreen = 1\nr_width = 3024\nr_vsync = 1\n")
     }
 }

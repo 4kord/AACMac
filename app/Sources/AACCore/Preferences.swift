@@ -32,7 +32,7 @@ public struct Preferences {
 
     public func setWindowed(_ windowed: Bool) throws {
         try update { $0.windowed = windowed }
-        try editGameSettings([("r_Fullscreen", windowed ? "0" : "1")])
+        try editGameSettings([("r_fullscreen", windowed ? "0" : "1")])
     }
 
     public func resetGameSettings(screen: (Int, Int)) throws {

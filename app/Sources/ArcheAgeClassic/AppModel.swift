@@ -94,6 +94,9 @@ final class AppModel: ObservableObject {
     private func launch() async throws {
         phase = .launching
         try FileManager.default.createDirectory(at: paths.logs, withIntermediateDirectories: true)
+        if let docs = paths.documentsDir() {
+            try? GameSettings.removeDuplicates(inFileAt: docs.appendingPathComponent("system.cfg"))
+        }
         let wine = Wine(paths: paths, options: preferences.options, runner: ProcessRunner())
         let log = paths.logs.appendingPathComponent("wine.log")
         let supervisor = LauncherSupervisor(probe: probe,
