@@ -1,0 +1,6 @@
+LIBRARY dwmapi.dll
+EXPORTS
+    DwmGetWindowAttribute
+    DwmSetWindowAttribute
+    DwmEnableBlurBehindWindow
+    AacFindLoadLibraryA32

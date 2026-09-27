@@ -1,0 +1,7 @@
+.DS_Store
+/app/launcher-hooks/*.dll
+/app/launcher-hooks/tests/*.exe
+/runtime/build/
+/runtime/dist/
+/app/.build/
+/dist/
