@@ -1,0 +1,25 @@
+--- a/dlls/ole32/ole2.c
++++ b/dlls/ole32/ole2.c
+@@ -631,6 +631,7 @@
+   IStream *stream;
+   IDropTarget *drop_target;
+   HRESULT hr;
++  DWORD pid = 0;
+ 
+   TRACE("(%p)\n", hwnd);
+ 
+@@ -640,6 +641,14 @@
+     return DRAGDROP_E_INVALIDHWND;
+   }
+ 
++  /* the drop target pointer stored on another process's window is not valid here */
++  GetWindowThreadProcessId(hwnd, &pid);
++  if (pid != GetCurrentProcessId())
++  {
++    FIXME("revoke for another process windows is disabled\n");
++    return DRAGDROP_E_INVALIDHWND;
++  }
++
+   /* no registration data */
+   if (!(map = get_droptarget_handle(hwnd)))
+     return DRAGDROP_E_NOTREGISTERED;
