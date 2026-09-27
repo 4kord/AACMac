@@ -66,13 +66,10 @@ cp "$m/native/i386-windows/d3d9.dll" "$out/mtld3d/native/i386-windows/"
 cp -R "$m/prefix-markers/syswow64" "$m/prefix-markers/system32" "$out/mtld3d/prefix-markers/"
 
 echo "==> rosettax87"
-fetch "$ROSETTAX87_DMG_URL" "$ROSETTAX87_DMG_SHA256" "$work/cache/rosettax87.dmg"
-mnt="$work/dmg"; mkdir -p "$mnt"
-hdiutil attach -nobrowse -readonly -mountpoint "$mnt" "$work/cache/rosettax87.dmg" >/dev/null
-trap 'hdiutil detach "$mnt" >/dev/null 2>&1 || true' EXIT
-rx="$mnt/WoWSilicon.app/Contents/Resources/WoWSilicon-swift_WoWSiliconSwift.bundle/Patching/rosettax87"
-mkdir -p "$out/x87"; cp "$rx/rosettax87" "$rx/libRuntimeRosettax87" "$out/x87/"
-hdiutil detach "$mnt" >/dev/null; trap - EXIT
+fetch "$ROSETTAX87_URL" "$ROSETTAX87_SHA256" "$work/cache/rosettax87.tar.gz"
+mkdir -p "$out/x87"
+tar -xzf "$work/cache/rosettax87.tar.gz" -C "$out/x87" ./runtime_loader ./libRuntimeRosettax87
+mv "$out/x87/runtime_loader" "$out/x87/rosettax87"
 
 echo "==> Licenses, sources, revision"
 mkdir -p "$out/LICENSES"
