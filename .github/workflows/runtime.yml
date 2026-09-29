@@ -1,0 +1,56 @@
+name: Runtime
+
+on:
+  push:
+    tags: ["runtime-r*"]
+
+permissions:
+  contents: write
+
+jobs:
+  runtime:
+    runs-on: macos-26
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Rosetta and build tools
+        run: |
+          softwareupdate --install-rosetta --agree-to-license || true
+          brew install bison freetype mingw-w64
+
+      - name: Build
+        run: runtime/build-runtime.sh "${GITHUB_REF_NAME#runtime-}"
+
+      - name: Smoke test
+        run: runtime/validate.sh "runtime/dist/ArcheAge-Runtime-${GITHUB_REF_NAME#runtime-}.tar.xz"
+
+      # pre-release, so the repo's "latest release" stays the app
+      - name: Publish the release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          rev="${GITHUB_REF_NAME#runtime-}"
+          gh release create "$GITHUB_REF_NAME" "runtime/dist/ArcheAge-Runtime-$rev.tar.xz" \
+            --title "Runtime $rev" --prerelease --notes-file runtime/SOURCES.md
+
+      - name: Lock the runtime on main
+        run: |
+          rev="${GITHUB_REF_NAME#runtime-}"
+          f="runtime/dist/ArcheAge-Runtime-$rev.tar.xz"
+          size=$(stat -f %z "$f")
+          sha=$(shasum -a 256 "$f" | cut -d' ' -f1)
+          git fetch -q origin main
+          git checkout -q -B main origin/main
+          cat > runtime/runtime-lock.json <<EOF
+          {
+            "revision": "$rev",
+            "releaseTag": "$GITHUB_REF_NAME",
+            "asset": "ArcheAge-Runtime-$rev.tar.xz",
+            "sizeBytes": $size,
+            "sha256": "$sha"
+          }
+          EOF
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -qam "lock runtime $rev"
+          git push -q origin main
