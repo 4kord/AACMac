@@ -1,0 +1,52 @@
+Subject: win32u: no cross-process send from the shm surface flush under the USER lock
+
+apply_window_pos applies the surface shape (update_surface_region, which
+flushes) while holding a window pointer, so the shm surface flush from 0001
+sent WM_WINE_FLUSHSHMSURFACE to the parent process under the USER lock and
+user_check_not_lock() aborted the WebView2 process. Skip the send while the
+lock is held and keep the bounds dirty; the next idle flush delivers them.
+---
+diff --git a/dlls/win32u/dce.c b/dlls/win32u/dce.c
+index 1ac4c54..e7561fe 100644
+--- a/dlls/win32u/dce.c
++++ b/dlls/win32u/dce.c
+@@ -758,6 +758,11 @@ static BOOL shm_surface_flush( struct window_surface *window_surface, const RECT
+ 
+     TRACE("%p\n", surface);
+ 
++    /* The flush reaches the parent through a cross-process send, which must not
++     * happen under the USER lock (apply_window_pos applies the surface shape
++     * while holding it). Keep the bounds dirty; the next idle flush sends them. */
++    if (user_lock_held()) return FALSE;
++
+     params.section = HandleToLong( surface->section );
+     params.hwnd = HandleToLong( surface->header.hwnd );
+     params.info = surface->info;
+diff --git a/dlls/win32u/sysparams.c b/dlls/win32u/sysparams.c
+index fdcdfc0..17d04d6 100644
+--- a/dlls/win32u/sysparams.c
++++ b/dlls/win32u/sysparams.c
+@@ -343,6 +343,11 @@ void user_unlock(void)
+     pthread_mutex_unlock( &user_mutex );
+ }
+ 
++BOOL user_lock_held(void)
++{
++    return user_lock_thread == GetCurrentThreadId();
++}
++
+ void user_check_not_lock(void)
+ {
+     if (user_lock_thread == GetCurrentThreadId())
+diff --git a/dlls/win32u/win32u_private.h b/dlls/win32u/win32u_private.h
+index d3b4189..780d418 100644
+--- a/dlls/win32u/win32u_private.h
++++ b/dlls/win32u/win32u_private.h
+@@ -202,6 +202,7 @@ extern void reset_monitor_update_serial(void);
+ extern void user_lock(void);
+ extern void user_unlock(void);
+ extern void user_check_not_lock(void);
++extern BOOL user_lock_held(void);
+ extern BOOL get_gpu_uuid_from_luid( const LUID *luid, GUID *uuid );
+ extern BOOL get_gpu_info_from_uuid( const GUID *uuid, LUID *luid, UINT32 *node_mask, char *name );
+ 
