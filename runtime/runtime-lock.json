@@ -1,7 +1,7 @@
 {
-  "revision": "r2",
-  "releaseTag": "runtime-r2",
-  "asset": "ArcheAge-Runtime-r2.tar.xz",
-  "sizeBytes": 73116104,
-  "sha256": "c7c759725b2db809a52de3fee097d797cebbfb14f04590cdf6c04fde89bf1132"
+  "revision": "r3",
+  "releaseTag": "runtime-r3",
+  "asset": "ArcheAge-Runtime-r3.tar.xz",
+  "sizeBytes": 73010580,
+  "sha256": "22ef83af2f4acd367caa0e5c7f74c7f59baaa2d45341a468189769eca3f80845"
 }
