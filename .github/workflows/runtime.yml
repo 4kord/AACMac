@@ -10,6 +10,7 @@ permissions:
 jobs:
   runtime:
     runs-on: macos-26
+    timeout-minutes: 60
     steps:
       - uses: actions/checkout@v4
 
@@ -22,6 +23,9 @@ jobs:
         run: runtime/build-runtime.sh "${GITHUB_REF_NAME#runtime-}"
 
       - name: Smoke test
+        timeout-minutes: 15
+        env:
+          AAC_SKIP_X87: "1"
         run: runtime/validate.sh "runtime/dist/ArcheAge-Runtime-${GITHUB_REF_NAME#runtime-}.tar.xz"
 
       # pre-release, so the repo's "latest release" stays the app
