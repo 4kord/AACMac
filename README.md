@@ -23,7 +23,3 @@ Quit the app, then run this in Terminal. It removes the app, the game and its se
 ```
 rm -rf "/Applications/ArcheAge Classic.app" ~/Library/"Application Support/ArcheAge Classic" ~/Library/Logs/"ArcheAge Classic"
 ```
-
-## Game settings
-
-In the game's display options, keep Restrict Max FPS at 90 (the default for new installs; 60 saves power on a 60 Hz screen) and turn vertical sync off. With vsync on, a Mac that can't finish every frame in time for the display drops to half its refresh rate, so 60 on a 120 Hz panel even when it could manage 90 or more. Turn it back on only if you see tearing.
