@@ -26,6 +26,9 @@ grep -qx -- "--child --disable-features=Ignored --embedded-browser-webview=1 --d
   || fail "browser process did not get the arguments"
 grep -qx -- "--child --type=renderer --embedded-browser-webview=1" "$tmp/wv2.txt" || fail "renderer command line changed"
 
+echo "==> emoji fallback font"
+[[ -f "$rt/share/wine/fonts/TwemojiMozilla.ttf" ]] || fail "Twemoji Mozilla missing"
+
 echo "==> MTLd3D loads (native route)"
 W="$tmp/prefix/drive_c/windows"
 cp "$rt/mtld3d/native/i386-windows/d3d9.dll" "$W/syswow64/d3d9.dll"

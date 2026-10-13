@@ -1,6 +1,7 @@
 # Sources
 
 - Wine: WineAndAqua 11.13 @ 37540b5d9, https://github.com/WineAndAqua/wine (LGPL). Base build: WoWSilicon wine-runtime-r17.
-- `0001-launcher-ui-cross-process-child-windows.patch`: CX HACK 23950 from CodeWeavers' crossover-sources-26.3.0 (LGPL), ported. `0002-launcher-dragdrop-crash.patch`, `0003-launcher-ui-no-cross-process-send-under-user-lock.patch`, `0004-webview2-browser-args-from-registry.patch` and `0005-no-native-frame-when-client-covers-window.patch`: ours. All in `LICENSES/`.
+- `0001-launcher-ui-cross-process-child-windows.patch`: CX HACK 23950 from CodeWeavers' crossover-sources-26.3.0 (LGPL), ported. `0002-launcher-dragdrop-crash.patch`, `0003-launcher-ui-no-cross-process-send-under-user-lock.patch`, `0004-webview2-browser-args-from-registry.patch`, `0005-no-native-frame-when-client-covers-window.patch` and `0006-dwrite-emoji-fallback.patch`: ours. All in `LICENSES/`.
 - MTLd3D v0.11.0-4kord.1, https://github.com/4kord/mtld3d (fork of https://github.com/athei/mtld3d, zlib)
 - rosettax87 build a44f1eff, https://github.com/Lifeisawful/rosettax87_jit (MIT)
+- Twemoji Mozilla v0.7.0, https://github.com/mozilla/twemoji-colr (font code Apache-2.0; emoji art © Twitter, Inc. and other contributors, CC-BY 4.0, https://twemoji.twitter.com). Unmodified; Wine falls back to it for emoji.
