@@ -11,8 +11,8 @@ final class WineEnvironmentTests: XCTestCase {
         XCTAssertEqual(env["WINEMSYNC"], "1")
         XCTAssertEqual(env["WINE_LARGE_ADDRESS_AWARE"], "1")
         XCTAssertEqual(env["WINEDEBUG"], "-all")
-        XCTAssertEqual(env["WEBVIEW2_BROWSER_EXECUTABLE_FOLDER"], "C:\\WebView2")
-        XCTAssertTrue(env["WEBVIEW2_ADDITIONAL_BROWSER_ARGUMENTS"]!.contains("--in-process-gpu --use-gl=swiftshader"))
+        XCTAssertEqual(env["WEBVIEW2_BROWSER_EXECUTABLE_FOLDER"], "C:\\Program Files (x86)\\Microsoft\\EdgeWebView\\Application\\155.0.4283.45")
+        XCTAssertNil(env["WEBVIEW2_ADDITIONAL_BROWSER_ARGUMENTS"])
         XCTAssertEqual(env["ROSETTA_X87_PATH"], "/r/runtime/x87/rosettax87")
         XCTAssertNil(env["MTL_HUD_ENABLED"])
     }
@@ -34,6 +34,6 @@ final class WineEnvironmentTests: XCTestCase {
 
     func testMTLd3DSettings() {
         XCTAssertEqual(WineEnvironment.make(paths: paths, options: LaunchOptions())["MTLD3D_CONFIG"],
-                       "present.maxFps=60;color.hdr.enable=false;color.space=accurate")
+                       "color.hdr.enable=false;color.space=accurate")
     }
 }

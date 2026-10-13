@@ -17,6 +17,18 @@ WINEDLLOVERRIDES="mscoree=;mshtml=" limit 300 "$rt/bin/wine" wineboot -i >/dev/n
 echo "==> patched win32u present"
 strings "$rt/lib/wine/x86_64-unix/win32u.so" | grep -c "Flushing %p window surface" >/dev/null || fail "launcher window patch missing"
 
+echo "==> WebView2 browser arguments from the registry"
+x86_64-w64-mingw32-gcc -O2 -o "$tmp/msedgewebview2.exe" "$here/tests/wv2args.c"
+limit 60 "$rt/bin/wine" reg add 'HKCU\Software\Wine\WebView2' /v AdditionalBrowserArguments \
+  /d "--in-process-gpu --disable-features=CalculateNativeWinOcclusion" /f >/dev/null 2>&1 || fail "reg add"
+(cd "$tmp" && limit 120 "$rt/bin/wine" msedgewebview2.exe 2>/dev/null) | tr -d '\r' | tee "$tmp/wv2.txt"
+grep -qx -- "--child --disable-features=Ignored --embedded-browser-webview=1 --disable-features=msSmartScreenProtection,CalculateNativeWinOcclusion --lang=en-US --in-process-gpu" "$tmp/wv2.txt" \
+  || fail "browser process did not get the arguments"
+grep -qx -- "--child --type=renderer --embedded-browser-webview=1" "$tmp/wv2.txt" || fail "renderer command line changed"
+
+echo "==> emoji fallback font"
+[[ -f "$rt/share/wine/fonts/TwemojiMozilla.ttf" ]] || fail "Twemoji Mozilla missing"
+
 echo "==> MTLd3D loads (native route)"
 W="$tmp/prefix/drive_c/windows"
 cp "$rt/mtld3d/native/i386-windows/d3d9.dll" "$W/syswow64/d3d9.dll"

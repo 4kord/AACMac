@@ -46,12 +46,17 @@ grep -q 'SONAME_LIBFREETYPE "libfreetype.6.dylib"' "$bld/include/config.h"
 grep -q 'SONAME_LIBVULKAN "libvulkan.1.dylib"' "$bld/include/config.h"
 
 echo "==> Build patched modules"
-targets="dlls/win32u/win32u.so server/wineserver dlls/ole32/x86_64-windows/ole32.dll dlls/ole32/i386-windows/ole32.dll dlls/d3d9/i386-windows/d3d9.dll"
+targets="dlls/win32u/win32u.so dlls/winemac.drv/winemac.so server/wineserver dlls/ole32/x86_64-windows/ole32.dll dlls/ole32/i386-windows/ole32.dll dlls/kernelbase/x86_64-windows/kernelbase.dll dlls/kernelbase/i386-windows/kernelbase.dll dlls/dwrite/x86_64-windows/dwrite.dll dlls/dwrite/i386-windows/dwrite.dll dlls/d3d9/i386-windows/d3d9.dll"
 (cd "$bld" && arch -x86_64 /bin/zsh -c "PATH=$(brew --prefix bison)/bin:\$PATH make -j$(sysctl -n hw.ncpu) $targets") > "$work/make.log" 2>&1
 cp "$bld/dlls/win32u/win32u.so" "$out/lib/wine/x86_64-unix/win32u.so"
+cp "$bld/dlls/winemac.drv/winemac.so" "$out/lib/wine/x86_64-unix/winemac.so"
 cp "$bld/server/wineserver" "$out/bin/wineserver"
 cp "$bld/dlls/ole32/x86_64-windows/ole32.dll" "$out/lib/wine/x86_64-windows/ole32.dll"
 cp "$bld/dlls/ole32/i386-windows/ole32.dll" "$out/lib/wine/i386-windows/ole32.dll"
+cp "$bld/dlls/kernelbase/x86_64-windows/kernelbase.dll" "$out/lib/wine/x86_64-windows/kernelbase.dll"
+cp "$bld/dlls/kernelbase/i386-windows/kernelbase.dll" "$out/lib/wine/i386-windows/kernelbase.dll"
+cp "$bld/dlls/dwrite/x86_64-windows/dwrite.dll" "$out/lib/wine/x86_64-windows/dwrite.dll"
+cp "$bld/dlls/dwrite/i386-windows/dwrite.dll" "$out/lib/wine/i386-windows/dwrite.dll"
 cp "$bld/dlls/d3d9/i386-windows/d3d9.dll" "$out/lib/wine/i386-windows/d3d9.dll"   # stock wined3d d3d9 (fallback renderer)
 
 echo "==> MTLd3D v0.11.0"
@@ -71,10 +76,16 @@ mkdir -p "$out/x87"
 tar -xzf "$work/cache/rosettax87.tar.gz" -C "$out/x87" ./runtime_loader ./libRuntimeRosettax87
 mv "$out/x87/runtime_loader" "$out/x87/rosettax87"
 
+echo "==> Twemoji Mozilla"
+fetch "$TWEMOJI_URL" "$TWEMOJI_SHA256" "$work/cache/TwemojiMozilla.ttf"
+cp "$work/cache/TwemojiMozilla.ttf" "$out/share/wine/fonts/TwemojiMozilla.ttf"
+fetch "$TWEMOJI_LICENSE_URL" "$TWEMOJI_LICENSE_SHA256" "$work/cache/Twemoji-LICENSE.md"
+
 echo "==> Licenses, sources, revision"
 mkdir -p "$out/LICENSES"
 cp "$src/COPYING.LIB" "$out/LICENSES/Wine-LGPL-2.1.txt"
 cp "$m/LICENSE" "$out/LICENSES/MTLd3D-zlib.txt"
+cp "$work/cache/Twemoji-LICENSE.md" "$out/LICENSES/TwemojiMozilla-Apache-2.0-CC-BY-4.0.md"
 cp "$here/SOURCES.md" "$out/SOURCES.md"
 cp "$here"/patches/*.patch "$out/LICENSES/"
 echo "$rev" > "$out/REVISION"

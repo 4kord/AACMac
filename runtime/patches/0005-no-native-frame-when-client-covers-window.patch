@@ -1,0 +1,34 @@
+Subject: win32u: no native frame for windows whose client area covers the window
+
+Apps that draw their own title bar (the Wails-based addon manager) keep
+WS_CAPTION and make WM_NCCALCSIZE return the whole window, Wails a pixel taller
+so the window isn't taken for a fullscreen one. get_visible_rect only skipped
+the driver's decorations when the client rect equalled the window rect, so the
+macOS title bar was added on top and covered the app's own header.
+---
+diff --git a/dlls/win32u/window.c b/dlls/win32u/window.c
+index 5e1562d38c..3478f25e9d 100644
+--- a/dlls/win32u/window.c
++++ b/dlls/win32u/window.c
+@@ -2053,6 +2053,12 @@ done:
+ }
+ 
+ 
++static BOOL client_covers_window( const struct window_rects *rects )
++{
++    return rects->client.left <= rects->window.left && rects->client.top <= rects->window.top &&
++           rects->client.right >= rects->window.right && rects->client.bottom >= rects->window.bottom;
++}
++
+ static RECT get_visible_rect( HWND hwnd, BOOL shaped, UINT style, UINT ex_style, const struct window_rects *rects )
+ {
+     struct ratio dpi = get_dpi_for_window( hwnd );
+@@ -2060,7 +2066,7 @@ static RECT get_visible_rect( HWND hwnd, BOOL shaped, UINT style, UINT ex_style,
+     RECT visible_rect, rect = {0};
+ 
+     if (get_present_rect( hwnd, &rect, get_thread_dpi() )) return rect;
+-    if (IsRectEmpty( &rects->window ) || EqualRect( &rects->window, &rects->client ) || shaped || !decorated_mode) return rects->window;
++    if (IsRectEmpty( &rects->window ) || client_covers_window( rects ) || shaped || !decorated_mode) return rects->window;
+     if (!user_driver->pGetWindowStyleMasks( hwnd, style, ex_style, &style_mask, &ex_style_mask )) return rects->window;
+     if (!adjust_window_rect( &rect, style & style_mask, FALSE, ex_style & ex_style_mask, round_dpi( dpi ) )) return rects->window;
+ 

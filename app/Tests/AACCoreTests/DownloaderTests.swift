@@ -73,7 +73,8 @@ final class DownloaderTests: XCTestCase {
     }
 
     func testPinnedComponents() {
-        XCTAssertEqual(Components.webView2.sha256, "eac95c8095ec5f9971eade9827d8fb67fd251f5c16e702b5312d31067e39119b")
+        XCTAssertEqual(Components.webView2.sha256, "ec533bf1b7354d288703cf821a2d640d0130108224f93e330bb9c09faf3f8010")
+        XCTAssertEqual(Components.webView2.url.host, "github.com")
         XCTAssertEqual(Components.directX.sha256, "053f76dcbb28802e23341b6a787e3b0791c0fa5c8d4d011b1044172dbf89c73b")
         XCTAssertNil(Components.installer.sha256)
         XCTAssertEqual(Components.installer.url.host, "patch.aa-classic.com")

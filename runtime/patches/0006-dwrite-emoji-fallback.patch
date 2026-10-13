@@ -1,0 +1,41 @@
+Subject: dwrite: color emoji fallback (Twemoji Mozilla)
+
+The system font fallback had no entry for emoji, and the symbol blocks only
+listed Noto fonts the runtime doesn't have, so WebView2 drew boxes for emoji
+such as the launcher's news icons. Fall back to Twemoji Mozilla, which the
+runtime ships in its font directory (COLR colour glyphs that Wine draws).
+---
+diff --git a/dlls/dwrite/analyzer.c b/dlls/dwrite/analyzer.c
+index 3b3927a4d2..b22efca09b 100644
+--- a/dlls/dwrite/analyzer.c
++++ b/dlls/dwrite/analyzer.c
+@@ -318,14 +318,14 @@ system_fallback_config[] =
+     { "2190-21FF",              L"Noto Sans Symbols" },
+ 
+     /* Miscellaneous Symbols - 2600-26FF */
+-    { "2600-26FF",              L"Noto Sans Symbols2, Noto Sans Symbols 2, Noto Sans Symbols" },
++    { "2600-26FF",              L"Noto Sans Symbols2, Noto Sans Symbols 2, Noto Sans Symbols, Twemoji Mozilla" },
+ 
+     /* Dingbats - 2700-27BF */
+-    { "2700-27BF",              L"Noto Sans Symbols2, Noto Sans Symbols 2" },
++    { "2700-27BF",              L"Noto Sans Symbols2, Noto Sans Symbols 2, Twemoji Mozilla" },
+ 
+     /* Misc Symbols and Arrows - 2B00-2BFF
+        Supplemental Arrows-C   - 1F800-1F8FF */
+-    { "2B00-2BFF, 1F800-1F8FF", L"Noto Sans Symbols2, Noto Sans Symbols 2" },
++    { "2B00-2BFF, 1F800-1F8FF", L"Noto Sans Symbols2, Noto Sans Symbols 2, Twemoji Mozilla" },
+ 
+     { "2C80-2CFF",              L"Noto Sans Coptic" },
+     { "2D30-2D7F",              L"Noto Sans Tifinagh" },
+@@ -394,6 +394,11 @@ system_fallback_config[] =
+     { "FF00-FFEF",              L"Noto Sans CJK JP" },
+ 
+     { "1F800-1F8FF",            L"Noto Sans Symbols2, Noto Sans Symbols 2" },
++
++    /* Emoji */
++    { "1F000-1F02F, 1F0A0-1F0FF, 1F100-1F2FF, 1F300-1F64F, "
++      "1F680-1F6FF, 1F7E0-1F7EF, 1F900-1F9FF, 1FA70-1FAFF, "
++      "2300-23FF, 20E3, E0020-E007F", L"Twemoji Mozilla" },
+ };
+ 
+ struct text_source_context
