@@ -21,7 +21,7 @@ struct SetupView: View {
             case let .working(title, detail, step, total):
                 Text(title).font(.headline)
                 ProgressView(value: Double(max(step - 1, 0)), total: Double(max(total, 1))) { Text(detail) }
-                Text("The first setup downloads about 250 MB and takes a few minutes. If you quit, it continues where it stopped next time.")
+                Text("The first setup downloads a few dependencies and takes a few minutes. If you quit, it continues where it stopped next time.")
                     .font(.caption).foregroundStyle(.secondary)
                     .fixedSize(horizontal: false, vertical: true)
                 HStack {
