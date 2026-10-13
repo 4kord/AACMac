@@ -12,6 +12,18 @@ The first start takes a few minutes because it downloads its dependencies. After
 
 You need an Apple Silicon Mac on macOS 14 or newer. If Rosetta isn't installed, the app asks for it.
 
+## Update
+
+Quit the app from the menu bar, then drag the new version from the DMG into Applications and replace the old one. The game, your login and your settings stay. The first start after an update can take a minute while the app updates its parts, and macOS may ask you to allow it again under Privacy & Security.
+
+## Uninstall
+
+Quit the app, then run this in Terminal. It removes the app, the game and its settings.
+
+```
+rm -rf "/Applications/ArcheAge Classic.app" ~/Library/"Application Support/ArcheAge Classic" ~/Library/Logs/"ArcheAge Classic"
+```
+
 ## Game settings
 
 In the game's display options, keep Restrict Max FPS at 90 (the default for new installs; 60 saves power on a 60 Hz screen) and turn vertical sync off. With vsync on, a Mac that can't finish every frame in time for the display drops to half its refresh rate, so 60 on a 120 Hz panel even when it could manage 90 or more. Turn it back on only if you see tearing.
