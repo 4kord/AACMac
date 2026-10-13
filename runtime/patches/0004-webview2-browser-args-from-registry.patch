@@ -1,0 +1,112 @@
+Subject: kernelbase: WebView2 browser arguments from the registry
+
+WebView2 hosts that load the runtime themselves, like the Wails-based addon
+manager, set WEBVIEW2_ADDITIONAL_BROWSER_ARGUMENTS to an empty value, which also
+stops WebView2 from reading the registry policy. Under Wine WebView2 only draws
+with software rendering flags, so add the arguments from
+HKCU\Software\Wine\WebView2\AdditionalBrowserArguments to every WebView2
+browser process, merging --disable-features/--enable-features into the lists
+already on the command line.
+---
+diff --git a/dlls/kernelbase/process.c b/dlls/kernelbase/process.c
+index 42773d328b..7e3c401841 100644
+--- a/dlls/kernelbase/process.c
++++ b/dlls/kernelbase/process.c
+@@ -25,6 +25,7 @@
+ #include "windef.h"
+ #include "winbase.h"
+ #include "winnls.h"
++#include "winreg.h"
+ #include "wincontypes.h"
+ #include "winternl.h"
+ #include "processsnapshot.h"
+@@ -587,6 +588,72 @@ static const WCHAR *hack_append_command_line( const WCHAR *cmd, const WCHAR *cmd
+     return NULL;
+ }
+ 
++static WCHAR *find_last_switch( WCHAR *cmd_line, const WCHAR *name )
++{
++    WCHAR *p = cmd_line, *last = NULL;
++
++    while ((p = wcsstr( p, name )))
++    {
++        if (p == cmd_line || p[-1] == ' ') last = p;
++        p++;
++    }
++    return last;
++}
++
++static WCHAR *hack_webview2_browser_args( const WCHAR *app_name, const WCHAR *cmd_line )
++{
++    static const WCHAR *lists[] = { L"--disable-features=", L"--enable-features=" };
++    WCHAR extra[2048], *ret, *tok, *next;
++    const WCHAR *exe;
++    DWORD size = sizeof(extra);
++    SIZE_T cap;
++    unsigned int i;
++
++    if (!app_name || !cmd_line) return NULL;
++    exe = wcsrchr( app_name, '\\' );
++    exe = exe ? exe + 1 : app_name;
++    if (lstrcmpiW( exe, L"msedgewebview2.exe" )) return NULL;
++    if (!wcsstr( cmd_line, L"--embedded-browser-webview=1" ) || wcsstr( cmd_line, L"--type=" )) return NULL;
++    if (RegGetValueW( HKEY_CURRENT_USER, L"Software\\Wine\\WebView2", L"AdditionalBrowserArguments",
++                      RRF_RT_REG_SZ, NULL, extra, &size ) || !extra[0])
++        return NULL;
++
++    cap = lstrlenW( cmd_line ) + 2 * lstrlenW( extra ) + 1;
++    if (!(ret = RtlAllocateHeap( GetProcessHeap(), 0, cap * sizeof(WCHAR) ))) return NULL;
++    lstrcpyW( ret, cmd_line );
++
++    for (tok = extra; *tok; tok = next)
++    {
++        WCHAR *found = NULL;
++
++        while (*tok == ' ') tok++;
++        if (!*tok) break;
++        next = tok + wcscspn( tok, L" " );
++        if (*next) *next++ = 0;
++
++        for (i = 0; i < ARRAY_SIZE(lists); i++)
++            if (!wcsncmp( tok, lists[i], lstrlenW( lists[i] ) ) && (found = find_last_switch( ret, lists[i] ))) break;
++        if (found)
++        {
++            const WCHAR *items = tok + lstrlenW( lists[i] );
++            WCHAR *end = found + wcscspn( found, L" " );
++            SIZE_T len = lstrlenW( items );
++
++            memmove( end + len + 1, end, (lstrlenW( end ) + 1) * sizeof(WCHAR) );
++            end[0] = ',';
++            memcpy( end + 1, items, len * sizeof(WCHAR) );
++        }
++        else
++        {
++            lstrcatW( ret, L" " );
++            lstrcatW( ret, tok );
++        }
++    }
++
++    TRACE( "WebView2 browser command line %s\n", debugstr_w(ret) );
++    return ret;
++}
++
+ /**********************************************************************
+  *           CreateProcessInternalW   (kernelbase.@)
+  */
+@@ -660,6 +727,16 @@ BOOL WINAPI DECLSPEC_HOTPATCH CreateProcessInternalW( HANDLE token, const WCHAR
+     }
+     /* end CROSSOVER HACK */
+ 
++    {
++        WCHAR *new_cmd;
++
++        if ((new_cmd = hack_webview2_browser_args( app_name, tidy_cmdline )))
++        {
++            if (tidy_cmdline != cmd_line) RtlFreeHeap( GetProcessHeap(), 0, tidy_cmdline );
++            tidy_cmdline = new_cmd;
++        }
++    }
++
+     TRACE( "app %s cmdline %s after all hacks\n", debugstr_w(app_name), debugstr_w(tidy_cmdline) );
+ 
+     /* Warn if unsupported features are used */

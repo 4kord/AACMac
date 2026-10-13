@@ -46,12 +46,14 @@ grep -q 'SONAME_LIBFREETYPE "libfreetype.6.dylib"' "$bld/include/config.h"
 grep -q 'SONAME_LIBVULKAN "libvulkan.1.dylib"' "$bld/include/config.h"
 
 echo "==> Build patched modules"
-targets="dlls/win32u/win32u.so server/wineserver dlls/ole32/x86_64-windows/ole32.dll dlls/ole32/i386-windows/ole32.dll dlls/d3d9/i386-windows/d3d9.dll"
+targets="dlls/win32u/win32u.so server/wineserver dlls/ole32/x86_64-windows/ole32.dll dlls/ole32/i386-windows/ole32.dll dlls/kernelbase/x86_64-windows/kernelbase.dll dlls/kernelbase/i386-windows/kernelbase.dll dlls/d3d9/i386-windows/d3d9.dll"
 (cd "$bld" && arch -x86_64 /bin/zsh -c "PATH=$(brew --prefix bison)/bin:\$PATH make -j$(sysctl -n hw.ncpu) $targets") > "$work/make.log" 2>&1
 cp "$bld/dlls/win32u/win32u.so" "$out/lib/wine/x86_64-unix/win32u.so"
 cp "$bld/server/wineserver" "$out/bin/wineserver"
 cp "$bld/dlls/ole32/x86_64-windows/ole32.dll" "$out/lib/wine/x86_64-windows/ole32.dll"
 cp "$bld/dlls/ole32/i386-windows/ole32.dll" "$out/lib/wine/i386-windows/ole32.dll"
+cp "$bld/dlls/kernelbase/x86_64-windows/kernelbase.dll" "$out/lib/wine/x86_64-windows/kernelbase.dll"
+cp "$bld/dlls/kernelbase/i386-windows/kernelbase.dll" "$out/lib/wine/i386-windows/kernelbase.dll"
 cp "$bld/dlls/d3d9/i386-windows/d3d9.dll" "$out/lib/wine/i386-windows/d3d9.dll"   # stock wined3d d3d9 (fallback renderer)
 
 echo "==> MTLd3D v0.11.0"
