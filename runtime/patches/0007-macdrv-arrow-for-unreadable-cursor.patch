@@ -1,0 +1,28 @@
+Subject: winemac.drv: arrow for cursors this process can't read
+
+WebView2 sets the cursor for its host's window with cursor handles it created
+itself. Cursor data lives in the creating process, so GetIconInfoExW fails in the
+host and SetCursor returned without changing anything: links and text fields
+never got their cursor, and once a SetCursor(NULL) came through the cursor stayed
+hidden over the addon manager. Show the arrow instead.
+---
+diff --git a/dlls/winemac.drv/mouse.c b/dlls/winemac.drv/mouse.c
+index 51ae29ae84..3060a42650 100644
+--- a/dlls/winemac.drv/mouse.c
++++ b/dlls/winemac.drv/mouse.c
+@@ -752,11 +752,11 @@ void macdrv_SetCursor(HWND hwnd, HCURSOR cursor)
+         info.cbSize = sizeof(info);
+         if (!get_icon_info(cursor, &info))
+         {
+-            WARN("GetIconInfoExW failed\n");
+-            return;
++            /* workaround, https://bugs.winehq.org/show_bug.cgi?id=58922 */
++            WARN("GetIconInfoExW failed, using the arrow\n");
++            cursor_name = CFRetain(CFSTR("arrowCursor"));
+         }
+-
+-        if ((cursor_name = copy_system_cursor_name(&info)))
++        else if ((cursor_name = copy_system_cursor_name(&info)))
+         {
+             NtGdiDeleteObjectApp(info.hbmColor);
+             NtGdiDeleteObjectApp(info.hbmMask);
