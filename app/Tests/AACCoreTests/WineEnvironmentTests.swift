@@ -34,6 +34,6 @@ final class WineEnvironmentTests: XCTestCase {
 
     func testMTLd3DSettings() {
         XCTAssertEqual(WineEnvironment.make(paths: paths, options: LaunchOptions())["MTLD3D_CONFIG"],
-                       "present.maxFps=60;color.hdr.enable=false;color.space=accurate")
+                       "color.hdr.enable=false;color.space=accurate")
     }
 }

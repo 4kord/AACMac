@@ -6,6 +6,9 @@ public enum GameSettings {
     public static func defaults(width: Int, height: Int) -> [(key: String, value: String)] {
         [
             ("r_driver", "\"DX9\""),
+            ("r_vsync", "0"),
+            ("sys_use_limit_fps", "1"),
+            ("sys_max_fps", "90"),
             ("r_fullscreen", "0"),
             ("r_width", "\(width)"),
             ("r_height", "\(height)"),

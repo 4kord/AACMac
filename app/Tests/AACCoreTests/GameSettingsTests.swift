@@ -13,6 +13,17 @@ final class GameSettingsTests: XCTestCase {
         XCTAssertEqual(d["option_use_shadow"], "0")
         XCTAssertEqual(d["r_multithreaded"], "1")
         XCTAssertEqual(d["sys_spec_full"], "2")
+        XCTAssertEqual(d["r_vsync"], "0")
+        XCTAssertEqual(d["sys_use_limit_fps"], "1")
+        XCTAssertEqual(d["sys_max_fps"], "90")
+    }
+
+    func testKeepsThePlayersVsyncAndLimit() {
+        let text = header + "r_vsync = 1\nsys_max_fps = 50\n"
+        let out = GameSettings.merge(text, GameSettings.defaults(width: 1512, height: 945), overwrite: false)
+        XCTAssertEqual(GameSettings.value(of: "r_vsync", in: out), "1")
+        XCTAssertEqual(GameSettings.value(of: "sys_max_fps", in: out), "50")
+        XCTAssertEqual(GameSettings.value(of: "sys_use_limit_fps", in: out), "1")
     }
 
     func testAddsMissingKeysAndKeepsOthers() {
