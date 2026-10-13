@@ -1,7 +1,7 @@
 import Foundation
 
 public enum Issue: Equatable {
-    case runtimeOutdated, dwmapiMissingOrChanged, registryMissing
+    case runtimeOutdated, dwmapiMissingOrChanged, registryMissing, webView2Missing
 }
 
 public struct QuickCheck {
@@ -20,6 +20,9 @@ public struct QuickCheck {
         if (try? FileHash.sha256(of: paths.installedDwmapi)) != (try? FileHash.sha256(of: resources.dwmapi)) {
             out.append(.dwmapiMissingOrChanged)
         }
+        if !FileManager.default.fileExists(atPath: paths.webView2Dir.appendingPathComponent("msedgewebview2.exe").path) {
+            out.append(.webView2Missing)
+        }
         let userReg = (try? String(contentsOf: paths.prefix.appendingPathComponent("user.reg"))) ?? ""
         if !RegistryFixes.isApplied(userReg: userReg) { out.append(.registryMissing) }
         return out
@@ -31,6 +34,7 @@ public struct QuickCheck {
             switch i {
             case .runtimeOutdated: steps.formUnion([.runtime, .mtld3d])
             case .registryMissing: steps.insert(.registry)
+            case .webView2Missing: steps.insert(.webView2)
             case .dwmapiMissingOrChanged: break  // the caller copies it directly
             }
         }

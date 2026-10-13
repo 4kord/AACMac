@@ -51,9 +51,18 @@ final class QuickCheckTests: XCTestCase {
         XCTAssertEqual(try QuickCheck(paths: paths, resources: res).issues(), [.registryMissing])
     }
 
+    func testWebView2InOldLocation() throws {
+        let fm = FileManager.default
+        try fm.removeItem(at: paths.webView2Dir)
+        try fm.createDirectory(at: paths.legacyWebView2Dir, withIntermediateDirectories: true)
+        try Data().write(to: paths.legacyWebView2Dir.appendingPathComponent("msedgewebview2.exe"))
+        XCTAssertEqual(try QuickCheck(paths: paths, resources: res).issues(), [.webView2Missing])
+    }
+
     func testStepsToRedo() {
         XCTAssertEqual(QuickCheck.stepsToRedo(for: [.runtimeOutdated]), [.runtime, .mtld3d])
         XCTAssertEqual(QuickCheck.stepsToRedo(for: [.registryMissing, .runtimeOutdated]), [.runtime, .mtld3d, .registry])
         XCTAssertEqual(QuickCheck.stepsToRedo(for: [.dwmapiMissingOrChanged]), [])
+        XCTAssertEqual(QuickCheck.stepsToRedo(for: [.registryMissing, .webView2Missing]), [.webView2, .registry])
     }
 }

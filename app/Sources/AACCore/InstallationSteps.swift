@@ -51,18 +51,23 @@ public struct InstallationSteps: SetupStepPerforming {
             try await wine.boot()
 
         case .webView2:
-            let exe = try await downloader.fetch(Components.webView2, into: paths.cache)
+            let cab = try await downloader.fetch(Components.webView2, into: paths.cache)
             let tmp = paths.cache.appendingPathComponent("webview2-unpack")
             try? fm.removeItem(at: tmp)
-            try await sevenZip.extract(exe, to: tmp.appendingPathComponent("outer"))
-            let outer = try fm.contentsOfDirectory(atPath: tmp.appendingPathComponent("outer").path)
-            guard let edge = outer.first(where: { $0.hasPrefix("MicrosoftEdge_X64_") }) else {
+            try await sevenZip.extract(cab, to: tmp)
+            let unpacked = tmp.appendingPathComponent("Microsoft.WebView2.FixedVersionRuntime.\(Components.webView2Version).x64")
+            guard fm.fileExists(atPath: unpacked.appendingPathComponent("msedgewebview2.exe").path) else {
                 throw InstallError.commandFailed("WebView2 package layout changed")
             }
-            try await sevenZip.extract(tmp.appendingPathComponent("outer/\(edge)"), to: tmp.appendingPathComponent("edge"))
-            try await sevenZip.extract(tmp.appendingPathComponent("edge/MSEDGE.7z"), to: tmp.appendingPathComponent("edge"))
-            try? fm.removeItem(at: paths.webView2Dir)
-            try fm.moveItem(at: tmp.appendingPathComponent("edge/Chrome-bin/\(Components.webView2Version)"), to: paths.webView2Dir)
+            let versions = paths.webView2Dir.deletingLastPathComponent()
+            try? fm.removeItem(at: versions)
+            try? fm.removeItem(at: paths.legacyWebView2Dir)
+            for f in (try? fm.contentsOfDirectory(atPath: paths.cache.path)) ?? []
+            where f.hasPrefix("webview2-") && f != Components.webView2.fileName && f != tmp.lastPathComponent {
+                try? fm.removeItem(at: paths.cache.appendingPathComponent(f))
+            }
+            try fm.createDirectory(at: versions, withIntermediateDirectories: true)
+            try fm.moveItem(at: unpacked, to: paths.webView2Dir)
             try? fm.removeItem(at: tmp)
 
         case .directX:

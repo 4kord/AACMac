@@ -27,7 +27,10 @@ public struct AppPaths {
     public var gameDir: URL { driveC.appendingPathComponent("Games/AAClassic") }
     public var launcherExe: URL { gameDir.appendingPathComponent("ArcheAge Classic Launcher.exe") }
     public var installedDwmapi: URL { gameDir.appendingPathComponent("dwmapi.dll") }
-    public var webView2Dir: URL { driveC.appendingPathComponent("WebView2") }
+    public var webView2Dir: URL {
+        driveC.appendingPathComponent("Program Files (x86)/Microsoft/EdgeWebView/Application/\(Components.webView2Version)")
+    }
+    public var legacyWebView2Dir: URL { driveC.appendingPathComponent("WebView2") }
     public var syswow64: URL { driveC.appendingPathComponent("windows/syswow64") }
     public var system32: URL { driveC.appendingPathComponent("windows/system32") }
     public var wine: URL { runtime.appendingPathComponent("bin/wine") }

@@ -1,11 +1,4 @@
 public enum WineEnvironment {
-    // the only combination that paints into the launcher window under Wine
-    public static let webView2Arguments = [
-        "--disable-gpu", "--disable-gpu-compositing", "--disable-d3d11", "--disable-direct-composition",
-        "--disable-features=DirectCompositionVideoOverlays,CalculateNativeWinOcclusion",
-        "--no-sandbox", "--in-process-gpu", "--use-gl=swiftshader",
-    ].joined(separator: " ")
-
     public static func make(paths: AppPaths, options: LaunchOptions) -> [String: String] {
         var env = [
             "WINEPREFIX": paths.prefix.path,
@@ -13,8 +6,7 @@ public enum WineEnvironment {
             "WINEMSYNC": "1",
             "WINE_LARGE_ADDRESS_AWARE": "1",
             "WINEDEBUG": "-all",
-            "WEBVIEW2_BROWSER_EXECUTABLE_FOLDER": "C:\\WebView2",
-            "WEBVIEW2_ADDITIONAL_BROWSER_ARGUMENTS": webView2Arguments,
+            "WEBVIEW2_BROWSER_EXECUTABLE_FOLDER": Components.webView2WindowsDir,
             // steady 60 on a 120 Hz panel; MTLd3D's simulated HDR posterizes this game's colors
             "MTLD3D_CONFIG": "present.maxFps=60;color.hdr.enable=false;color.space=accurate",
         ]

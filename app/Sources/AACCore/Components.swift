@@ -12,13 +12,13 @@ public struct Component: Equatable {
 }
 
 public enum Components {
-    // last Windows 7 build; newer ones draw nothing under Wine
     public static let webView2 = Component(
         id: "webview2",
-        url: URL(string: "https://catalog.s.download.windowsupdate.com/c/msdownload/update/software/updt/2023/09/microsoftedgestandaloneinstallerx64_1c890b4b8dd6b7c93da98ebdc08ecdc5e30e50cb.exe")!,
-        sha256: "eac95c8095ec5f9971eade9827d8fb67fd251f5c16e702b5312d31067e39119b",
-        fileName: "webview2-109.0.1518.140-x64.exe")
-    public static let webView2Version = "109.0.1518.140"
+        url: URL(string: "https://github.com/4kord/AACMac/releases/download/webview2-155.0.4283.45/Microsoft.WebView2.FixedVersionRuntime.155.0.4283.45.x64.cab")!,
+        sha256: "ec533bf1b7354d288703cf821a2d640d0130108224f93e330bb9c09faf3f8010",
+        fileName: "webview2-155.0.4283.45-x64.cab")
+    public static let webView2Version = "155.0.4283.45"
+    public static let webView2WindowsDir = "C:\\Program Files (x86)\\Microsoft\\EdgeWebView\\Application\\\(webView2Version)"
 
     public static let directX = Component(
         id: "directx",
