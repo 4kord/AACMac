@@ -23,3 +23,5 @@ Quit the app, then run this in Terminal. It removes the app, the game and its se
 ```
 rm -rf "/Applications/ArcheAge Classic.app" ~/Library/"Application Support/ArcheAge Classic" ~/Library/Logs/"ArcheAge Classic"
 ```
+
+<img width="1512" height="982" alt="Screenshot 2026-10-13 at 6 17 57 PM" src="https://github.com/user-attachments/assets/eae32714-a4e9-4ab1-af8a-2e7365050c23" />
